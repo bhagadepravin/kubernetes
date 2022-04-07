@@ -1,6 +1,12 @@
 # Kubernetes // **Troubleshooting**
 
 
+### commands
+```bash
+journalctl -b -f -u kubelet.service
+kubeadm token create --print-join-command
+```
+
 
 ### Changing docker cgroup
 
