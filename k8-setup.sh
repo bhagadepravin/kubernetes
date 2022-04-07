@@ -26,3 +26,4 @@ echo "kubeadm init"
 # kubeadm token create --print-join-command
 
 # kubelet troubleshoting # journalctl -b -f -u kubelet.service
+# make sure you call kubeadm init/join with e.g. --v=2 to have more details on what's going on.
