@@ -3,6 +3,11 @@
 
 ### commands
 ```bash
+  mkdir -p $HOME/.kube
+  sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+  sudo chown $(id -u):$(id -g) $HOME/.kube/config
+ ```
+```bash
 journalctl -b -f -u kubelet.service
 kubeadm token create --print-join-command
 ```
