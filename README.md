@@ -1,6 +1,6 @@
 # Kubernetes
 
-*Troublehooting*
+**Troubleshooting**
 
 ### Changing docker cgroup
 
