@@ -1,6 +1,7 @@
 #!/bin/bash
 
 ### Add K8 repository
+echo "added K8 repo"
 
 cat <<EOF > /etc/yum.repos.d/kubernetes.repo
 [kubernetes]
@@ -13,6 +14,8 @@ gpgkey=https://packages.cloud.google.com/yum/doc/yum-key.gpg https://packages.cl
 EOF
 
 ### ### Add Docker repository.
+yum install yum-utils -y -q
+echo "added docker repo"
 yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo 
 
 yum clean all && yum update all  && yum install -y yum-utils device-mapper-persistent-data lvm2 wget git vim docker-ce
