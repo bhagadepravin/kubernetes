@@ -22,7 +22,7 @@ systemctl restart docker
 # docker info
 
 --------------------------
-"Failed to run kubelet" err="failed to run Kubelet: misconfiguration: kubelet cgroup driver: \"systemd\" is different from docker cgroup driver: \"cgroupfs\"
+Failed to run kubelet" err="failed to run Kubelet: misconfiguration: kubelet cgroup driver: \"systemd\" is different from docker cgroup driver: \"cgroupfs\"
 
 
 journalctl -b -f -u kubelet.service
