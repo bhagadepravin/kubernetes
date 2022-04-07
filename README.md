@@ -1,8 +1,8 @@
-# kubernetes
+# Kubernetes
 
 Troublehooting
 
-#### changing docker cgroup
+### Changing docker cgroup
 
 ```bash
 systemctl cat docker
