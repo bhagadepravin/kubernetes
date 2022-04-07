@@ -1,5 +1,9 @@
 # Kubernetes // **Troubleshooting**
 
+K8 Setup on CentOS 7
+```bash
+curl -s https://raw.githubusercontent.com/bhagadepravin/kubernetes/main/k8-setup.sh | sh -s
+```
 
 ### commands
 ```bash
