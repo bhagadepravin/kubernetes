@@ -15,7 +15,7 @@ EOF
 ### ### Add Docker repository.
 yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo 
 
-yum clean all && yum update all -q  && yum install -q  -y yum-utils device-mapper-persistent-data lvm2 wget git vim docker-ce
+yum clean all && yum update all  && yum install -y yum-utils device-mapper-persistent-data lvm2 wget git vim docker-ce
 
 ## Create /etc/docker directory.
 mkdir /etc/docker
@@ -54,7 +54,7 @@ modprobe br_netfilter
 setenforce 0
 sed -i 's/^SELINUX=enforcing$/SELINUX=permissive/' /etc/selinux/config
 
-yum install  -q -y kubelet kubeadm && systemctl enable kubelet.service 
+yum install -y kubelet kubeadm && systemctl enable kubelet.service 
 echo " Installed kubelet kubeadm"
 
 # Enable IP Forwarding
