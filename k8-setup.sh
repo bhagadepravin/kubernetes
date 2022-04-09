@@ -63,7 +63,7 @@ setenforce 0
 sed -i 's/^SELINUX=enforcing$/SELINUX=permissive/' /etc/selinux/config
 
 yum install -y kubelet kubeadm kubectl && systemctl enable kubelet.service 
-echo " Installed kubelet kubeadm"
+echo " Installed kubelet kubeadm kubectl"
 
 # Load/Enable br_netfilter kernel module and make persistent
 sudo modprobe br_netfilter
@@ -82,7 +82,6 @@ echo "kubeadm config images pull"
 kubeadm config images pull
 
 echo "reboot if selinux was enabled"
-echo "kubeadm init"
 
 NETWORK_OVERLAY_CIDR_NET=`curl -s https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml | grep -E '"Network": "[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\/[0-9]{1,2}"' | cut -d'"' -f4`
 echo "$NETWORK_OVERLAY_CIDR_NET"
