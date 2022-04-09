@@ -55,6 +55,7 @@ vim ~/.bash_profile
 A context is a cluster, namespace and user.
 
 * Get a list of contexts.
+
 $ `kubectl config get-contexts`
 ```bash
 CURRENT   NAME                          CLUSTER      AUTHINFO           NAMESPACE
