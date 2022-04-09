@@ -89,8 +89,6 @@ echo "$NETWORK_OVERLAY_CIDR_NET"
 
 sudo kubeadm init --pod-network-cidr=${NETWORK_OVERLAY_CIDR_NET}
 
-# kubeadm reset
-# kubeadm token create --print-join-command
 
 echo " Install K9s"
 curl -sS https://webinstall.dev/k9s | bash
@@ -103,12 +101,51 @@ source <(kubectl completion bash)
 echo "source <(kubectl completion bash)" >> ~/.bashrc
 
 
-
-echo " Add K8 export variables"
+# Copy the cluster configuration to the regular users home directory
 mkdir -p $HOME/.kube
-cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
-chown $(id -u):$(id -g) $HOME/.kube/config
+sudo cp -r /etc/kubernetes/admin.conf $HOME/.kube/config
+sudo chown $(id -u):$(id -g) $HOME/.kube/config
 
+# Deploy the Flannel Network Overlay
+kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml
+
+# check the readiness of nodes
+kubectl get nodes
+
+# check that coredns, apiserver, etcd, and flannel pods are running
+kubectl get pods --all-namespaces
+
+# List k8s bootstrap tokens
+sudo kubeadm token list
+
+echo "kubeadm token create --print-join-command"
+kubeadm token create --print-join-command
+
+########################
+# === Reset Cluster === #
+#########################
+# Reset Cluster
+# sudo kubeadm reset
+
+# Clean up iptable remnants
+# sudo sh -c "iptables -F && iptables -t nat -F && iptables -t mangle -F && iptables -X"
+
+# Clean up network overlay remnants
+# sudo ip link delete cni0
+# sudo ip link delete flannel.1
+
+
+
+###########################
+# === Troubleshooting === #
+###########################
+# If exposed deployment intermittently responds with "no route to host", run the following on the troublesome host
+# sudo sh -c "iptables --flush && iptables --flush" && sudo systemctl restart docker.service
+
+# If the previous command fixes the intermittent problem, there is most likely an iptables rule preventing incoming traffic to the ingress controller
+#  sudo sh -c "cp /etc/sysconfig/iptables /etc/sysconfig/iptables.ORIG && iptables --flush && iptables --flush && iptables-save > /etc/sysconfig/iptables"
+#  sudo systemctl restart iptables.service
+#  sudo systemctl restart docker.service
 # export kubever=$(kubectl version | base64 | tr -d '\n')
 # kubectl apply -f https://cloud.weave.works/k8s/net?k8s-version=$kubever
 
