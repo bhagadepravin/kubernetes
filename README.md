@@ -62,18 +62,19 @@ CURRENT   NAME                          CLUSTER      AUTHINFO           NAMESPAC
 *         kubernetes-admin@kubernetes   kubernetes   kubernetes-admin
 ```
 * Get the current context.
+
+`$ kubectl config current-context`
 ```bash
-$ kubectl config current-context
 kubernetes-admin@kubernetes
 ```
 * Switch current context.
-```bash
-kubectl config use-context docker-desktop
-```
+
+`kubectl config use-context docker-desktop`
+
 * Set default namesapce
-```bash
-kubectl config set-context $(kubectl config current-context) --namespace=my-namespace
-```
+
+`kubectl config set-context $(kubectl config current-context) --namespace=my-namespace`
+
 To switch between contexts, you can also install and use (kubectx)[https://github.com/ahmetb/kubectx].
 
 ### Changing docker cgroup
