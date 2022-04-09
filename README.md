@@ -52,4 +52,7 @@ cgroupDriver: cgroupfs
 # Such a configuration file can then be passed to the kubeadm command:
 
 kubeadm init --config kubeadm-config.yaml
+
+or 
+sudo sed -i "s/^\(KUBELET_EXTRA_ARGS=\)\(.*\)$/\1\"--cgroup-driver=$(sudo docker info | grep -i cgroup | cut -d" " -f2 | tail -n1)\2\"/" /etc/sysconfig/kubelet
 ```
