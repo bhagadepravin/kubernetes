@@ -2,7 +2,11 @@
 
 K8 Setup on CentOS 7
 ```bash
+# Master
 curl -s https://raw.githubusercontent.com/bhagadepravin/kubernetes/main/k8-setup.sh | sh -s
+
+# Worker
+curl -s https://raw.githubusercontent.com/bhagadepravin/kubernetes/main/k8-worker-setup.sh | sh -s
 ```
 
 ### commands
