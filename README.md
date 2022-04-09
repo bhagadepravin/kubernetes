@@ -22,7 +22,7 @@ journalctl -b -f -u kubelet.service
 kubeadm token create --print-join-command
 ```
 
-* **Aliases**
+## **Aliases**
 ```bash
 vim ~/.bash_profile
 
@@ -50,6 +50,30 @@ vim ~/.bash_profile
     alias contexts="kubectl config get-contexts"
     alias ktop="kubectl top nodes"
 ```    
+
+## Contexts
+A context is a cluster, namespace and user.
+
+* Get a list of contexts.
+$ `kubectl config get-contexts`
+```bash
+CURRENT   NAME                          CLUSTER      AUTHINFO           NAMESPACE
+*         kubernetes-admin@kubernetes   kubernetes   kubernetes-admin
+```
+* Get the current context.
+```bash
+$ kubectl config current-context
+kubernetes-admin@kubernetes
+```
+* Switch current context.
+```bash
+kubectl config use-context docker-desktop
+```
+* Set default namesapce
+```bash
+kubectl config set-context $(kubectl config current-context) --namespace=my-namespace
+```
+To switch between contexts, you can also install and use (kubectx)[https://github.com/ahmetb/kubectx].
 
 ### Changing docker cgroup
 
