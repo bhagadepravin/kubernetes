@@ -96,7 +96,7 @@ source ~/.bash_profile
 
 # Enable kubectl bash-completion
 sudo yum -y install bash-completion
-source <(kubectl completion bash)
+echo "source <(kubectl completion bash)"
 echo "source <(kubectl completion bash)" >> ~/.bashrc
 
 
@@ -118,6 +118,7 @@ kubectl get pods --all-namespaces
 sudo kubeadm token list
 
 echo "kubeadm token create --print-join-command"
+kubectl get nodes
 kubeadm token create --print-join-command
 
 ########################
