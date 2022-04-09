@@ -1,7 +1,8 @@
 #!/bin/bash
 
+## Setup K8 on Centos 7 by Pravin Bhagade
 ### Add K8 repository
-echo "added K8 repo"
+echo "Added K8 repo"
 
 cat <<EOF > /etc/yum.repos.d/kubernetes.repo
 [kubernetes]
@@ -15,7 +16,7 @@ EOF
 
 ### ### Add Docker repository.
 yum install yum-utils -y -q
-echo "added docker repo"
+echo "Added docker repo"
 yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo 
 
 yum clean all && yum update all  && yum install -y yum-utils device-mapper-persistent-data lvm2 wget git vim docker-ce
@@ -74,9 +75,20 @@ echo "kubeadm config images pull"
 kubeadm config images pull
 
 echo "reboot if selinux was enabled"
+echo "kubeadm init"
 kubeadm init
 # kubeadm reset
 # kubeadm token create --print-join-command
+
+echo " Install K9s"
+curl -sS https://webinstall.dev/k9s | bash
+cp /root/.local/opt/k9s-*/bin/k9s /usr/bin/ 
+source ~/.bash_profile
+
+echo " Add K8 export variables"
+mkdir -p $HOME/.kube
+cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+chown $(id -u):$(id -g) $HOME/.kube/config
 
 # export kubever=$(kubectl version | base64 | tr -d '\n')
 # kubectl apply -f https://cloud.weave.works/k8s/net?k8s-version=$kubever
