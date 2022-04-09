@@ -114,11 +114,8 @@ kubectl get nodes
 # check that coredns, apiserver, etcd, and flannel pods are running
 kubectl get pods --all-namespaces
 
-# List k8s bootstrap tokens
-sudo kubeadm token list
-
 echo "kubeadm token create --print-join-command"
-kubectl get nodes
+kubectl cluster-info
 kubeadm token create --print-join-command
 
 ########################
