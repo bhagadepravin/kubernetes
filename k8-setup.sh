@@ -15,11 +15,13 @@ gpgkey=https://packages.cloud.google.com/yum/doc/yum-key.gpg https://packages.cl
 EOF
 
 ### ### Add Docker repository.
-yum install yum-utils -y -q
+# Install dependencies for docker-ce
+sudo yum -y install yum-utils device-mapper-persistent-data lvm2
+
 echo "Added docker repo"
 yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo 
 
-yum clean all && yum update all  && yum install -y yum-utils device-mapper-persistent-data lvm2 wget git vim docker-ce
+yum clean all && yum update all  && yum install -y wget git vim docker-ce iptables
 
 ## Create /etc/docker directory.
 mkdir /etc/docker
@@ -50,23 +52,28 @@ systemctl restart docker
 swapoff -a
 sed -i 's/^\(.*swap.*\)$/#\1/' /etc/fstab 
 
+# Disable default iptables configuration as it will break kubernetes services (API, coredns, etc...)
+sudo sh -c "cp /etc/sysconfig/iptables /etc/sysconfig/iptables.ORIG && iptables --flush && iptables --flush && iptables-save > /etc/sysconfig/iptables"
+sudo systemctl restart iptables.service
+
 sestatus
-# load netfilter probe specifically
-modprobe br_netfilter
 
 # disable SELinux. If you want this enabled, comment out the next 2 lines. But you may encounter issues with enabling SELinux
 setenforce 0
 sed -i 's/^SELINUX=enforcing$/SELINUX=permissive/' /etc/selinux/config
 
-yum install -y kubelet kubeadm && systemctl enable kubelet.service 
+yum install -y kubelet kubeadm kubectl && systemctl enable kubelet.service 
 echo " Installed kubelet kubeadm"
 
-# Enable IP Forwarding
-echo '1' > /proc/sys/net/bridge/bridge-nf-call-iptables
-cat <<EOF >  /etc/sysctl.d/k8s.conf
-net.bridge.bridge-nf-call-ip6tables = 1
-net.bridge.bridge-nf-call-iptables = 1
-EOF
+# Load/Enable br_netfilter kernel module and make persistent
+sudo modprobe br_netfilter
+sudo sh -c "echo '1' > /proc/sys/net/bridge/bridge-nf-call-iptables"
+sudo sh -c "echo '1' > /proc/sys/net/bridge/bridge-nf-call-ip6tables"
+sudo sh -c "echo 'net.bridge.bridge-nf-call-iptables=1' >> /etc/sysctl.conf"
+sudo sh -c "echo 'net.bridge.bridge-nf-call-ip6tables=1' >> /etc/sysctl.conf"
+sysctl -w net.ipv4.ip_forward=1
+sed -i 's/#net.ipv4.ip_forward=1/net.ipv4.ip_forward=1/g' /etc/sysctl.conf
+sudo sysctl -p /etc/sysctl.conf
 
 # Restarting services
 systemctl daemon-reload
@@ -76,7 +83,12 @@ kubeadm config images pull
 
 echo "reboot if selinux was enabled"
 echo "kubeadm init"
-kubeadm init
+
+NETWORK_OVERLAY_CIDR_NET=`curl -s https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml | grep -E '"Network": "[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\/[0-9]{1,2}"' | cut -d'"' -f4`
+echo "$NETWORK_OVERLAY_CIDR_NET"
+
+sudo kubeadm init --pod-network-cidr=${NETWORK_OVERLAY_CIDR_NET}
+
 # kubeadm reset
 # kubeadm token create --print-join-command
 
@@ -84,6 +96,13 @@ echo " Install K9s"
 curl -sS https://webinstall.dev/k9s | bash
 cp /root/.local/opt/k9s-*/bin/k9s /usr/bin/ 
 source ~/.bash_profile
+
+# Enable kubectl bash-completion
+sudo yum -y install bash-completion
+source <(kubectl completion bash)
+echo "source <(kubectl completion bash)" >> ~/.bashrc
+
+
 
 echo " Add K8 export variables"
 mkdir -p $HOME/.kube
