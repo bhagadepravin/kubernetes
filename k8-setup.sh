@@ -95,12 +95,12 @@ sudo kubeadm init --pod-network-cidr=${NETWORK_OVERLAY_CIDR_NET}
 #source ~/.bash_profile
 
 
-yum install epel-release -y
-yum install -y snapd
-systemctl enable --now snapd.socket
-ln -s /var/lib/snapd/snap /snap
-service snapd start
-snap install k9s
+#yum install epel-release -y
+#yum install -y snapd
+#systemctl enable --now snapd.socket
+#ln -s /var/lib/snapd/snap /snap
+#service snapd start
+#snap install k9s
 
 
 # Enable kubectl bash-completion
