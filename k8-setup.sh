@@ -89,10 +89,19 @@ echo "$NETWORK_OVERLAY_CIDR_NET"
 sudo kubeadm init --pod-network-cidr=${NETWORK_OVERLAY_CIDR_NET}
 
 
-echo " Install K9s"
-curl -sS https://webinstall.dev/k9s | bash
-cp /root/.local/opt/k9s-*/bin/k9s /usr/bin/ 
-source ~/.bash_profile
+#echo " Install K9s"
+#curl -sS https://webinstall.dev/k9s | bash
+#cp /root/.local/opt/k9s-*/bin/k9s /usr/bin/ 
+#source ~/.bash_profile
+
+
+yum install epel-release -y
+yum install -y snapd
+systemctl enable --now snapd.socket
+ln -s /var/lib/snapd/snap /snap
+service snapd start
+snap install k9s
+
 
 # Enable kubectl bash-completion
 sudo yum -y install bash-completion
