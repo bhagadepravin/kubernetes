@@ -62,8 +62,9 @@ sestatus
 setenforce 0
 sed -i 's/^SELINUX=enforcing$/SELINUX=permissive/' /etc/selinux/config
 
-yum install -y kubelet kubeadm kubectl && systemctl enable kubelet.service 
-echo " Installed kubelet kubeadm kubectl"
+yum install -y kubelet-1.17.3 kubeadm-1.17.3  kubeadm-1.17.3
+
+systemctl enable kubelet.service 
 
 # Load/Enable br_netfilter kernel module and make persistent
 sudo modprobe br_netfilter
@@ -115,7 +116,10 @@ sudo cp -r /etc/kubernetes/admin.conf $HOME/.kube/config
 sudo chown $(id -u):$(id -g) $HOME/.kube/config
 
 # Deploy the Flannel Network Overlay
-kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml
+# kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml
+
+# Deploy Weave Net  Network
+kubectl apply -f "https://cloud.weave.works/k8s/net?k8s-version=$(kubectl version | base64 | tr -d '\n')"
 
 # check the readiness of nodes
 kubectl get nodes
