@@ -6,6 +6,12 @@ K8 Setup on CentOS 7
 ```bash
 curl -s https://raw.githubusercontent.com/bhagadepravin/kubernetes/main/k8-setup.sh | sh -s
 ```
+
+* **Kubernetes version 1.17.3** 
+```bash
+curl -s  https://raw.githubusercontent.com/bhagadepravin/kubernetes/k8-1.17.3-0/k8-setup.sh | sh -s
+```
+
 * **Worker Node**
 ```bash
 curl -s https://raw.githubusercontent.com/bhagadepravin/kubernetes/main/k8-worker-setup.sh | sh -s
