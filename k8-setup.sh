@@ -70,10 +70,6 @@ function prep_node {
     swapoff -a
     sed -i 's/^\(.*swap.*\)$/#\1/' /etc/fstab
 
-    logWarn "Disabling iptables configuration as it will break kubernetes services (API, coredns, etc...)\n"
-    sudo sh -c "cp /etc/sysconfig/iptables /etc/sysconfig/iptables.ORIG && iptables --flush && iptables --flush && iptables-save > /etc/sysconfig/iptables"
-    sudo systemctl restart iptables.service
-
     logWarn "Disabling Selinux\n"
     setenforce 0
     sed -i 's/^SELINUX=enforcing$/SELINUX=permissive/' /etc/selinux/config
