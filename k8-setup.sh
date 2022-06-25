@@ -45,7 +45,7 @@ EOF
 
 function install_docker {
 
-    if service docker status >/dev/null; then
+    if docker --version >/dev/null; then
         logStep "Docker already installed - skipping ...\n"
     else
         logStep "Installing docker ..."
