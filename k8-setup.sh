@@ -39,8 +39,9 @@ EOF
     sudo yum -y -q install yum-utils device-mapper-persistent-data lvm2
     [ -e /etc/yum.repos.d/docker-ce.repo ] && mv /etc/yum.repos.d/docker-ce.repo /etc/yum.repos.d/docker-ce.repo_bk
     yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
-    yum clean all && yum update all && yum install -y -q wget git vim iptables
-    logSuccess "Added Docker Repo\n"
+    echo " yum clean all && yum update all "
+    yum clean all > /dev/null && yum update all > /dev/null && yum install -y -q wget git vim iptables
+    logSuccess "Added Docker Repo\n"e
 }
 
 function install_docker {
@@ -49,7 +50,7 @@ function install_docker {
         logStep "Docker already installed - skipping ...\n"
     else
         logStep "Installing docker ..."
-        yum install -y docker-ce containerd
+        yum install -y -q  docker-ce containerd > /dev/null 
         if [ $? -ne 0 ]; then
             error "Error while installing docker\n"
         fi
@@ -57,7 +58,7 @@ function install_docker {
     logSuccess "Docker is Installed\n"
 
     systemctl daemon-reload
-    systemctl enable docker
+    systemctl enable docker > /dev/null 
     systemctl restart docker
     rm -rf /etc/containerd/config.toml
     systemctl restart containerd
@@ -73,10 +74,9 @@ function prep_node {
     logWarn "Disabling Selinux\n"
     setenforce 0
     sed -i 's/^SELINUX=enforcing$/SELINUX=permissive/' /etc/selinux/config
-    sestatus
 
     logWarn "Enable br_netfilter kernel module and make persistent\n"
-    sudo modprobe br_netfilter
+    sudo modprobe br_netfilter > /dev/null 
     sudo sh -c "echo '1' > /proc/sys/net/bridge/bridge-nf-call-iptables"
     sudo sh -c "echo '1' > /proc/sys/net/bridge/bridge-nf-call-ip6tables"
     sudo sh -c "echo 'net.bridge.bridge-nf-call-iptables=1' >> /etc/sysctl.conf"
@@ -86,7 +86,7 @@ function prep_node {
     sed -i "/enp0s3/d" /etc/sysctl.conf
     sysctl -w net.ipv4.ip_forward=1
     sed -i 's/#net.ipv4.ip_forward=1/net.ipv4.ip_forward=1/g' /etc/sysctl.conf
-    sudo sysctl -p /etc/sysctl.conf
+    sudo sysctl -p /etc/sysctl.conf > /dev/null
 
 }
 
@@ -98,7 +98,7 @@ function install_k8 {
     systemctl restart kubelet
 
     logWarn "Pulling kubeadm images\n"
-    kubeadm config images pull
+    kubeadm config images pull > /dev/null 
     logStep "Installing Kubernetes Inprogress.......\n"
 
     NETWORK_OVERLAY_CIDR_NET=$(curl -s https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml | grep -E '"Network": "[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\/[0-9]{1,2}"' | cut -d'"' -f4)
@@ -109,9 +109,8 @@ function install_k8 {
     logSuccess "Kubernetes is Installed\n"
 
     logStep "Enabling kubectl bash-completion"
-    sudo yum -y install bash-completion
-    echo "source <(kubectl completion bash)"
-    echo "source <(kubectl completion bash)" >>~/.bashrc
+    sudo yum -y -q install bash-completion > /dev/null 
+    echo "source <(kubectl completion bash)" >> ~/.bashrc
 
     logStep "Copy the cluster configuration to the regular users home directory\n"
     [ -e $HOME/.kube ] && mv $HOME/.kube $HOME/.kube_bk
