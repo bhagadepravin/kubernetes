@@ -5,7 +5,7 @@ logSuccess() {
     printf "${GREEN}✔ $1${NC}\n" 1>&2
 }
 logStep() {
-    printf "${BLUE}✔ $1${NC}\n" 1>&2
+    printf "${BLUE}➜ $1${NC}\n" 1>&2
 }
 logWarn() {
     printf "${YELLOW}$1${NC}\n" 1>&2
