@@ -124,6 +124,10 @@ function install_k8 {
 
     logSuccess "Check the readiness of nodes\n"
     kubectl get nodes
+    
+    logStep "Remove "node-role.kubernetes.io/master:NoSchedule taint", if its a single node cluster and you want deploy pods on control plane as well..\n"
+    logSuccess "kubectl taint nodes $(hostname) node-role.kubernetes.io/master:NoSchedule-\n"
+
 }
 
 add_repo
