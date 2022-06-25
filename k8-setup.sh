@@ -40,8 +40,9 @@ EOF
     [ -e /etc/yum.repos.d/docker-ce.repo ] && mv /etc/yum.repos.d/docker-ce.repo /etc/yum.repos.d/docker-ce.repo_bk
     yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
     echo " yum clean all && yum update all "
-    yum clean all >/dev/null && yum update all >/dev/null && yum install -y -q wget git vim iptables
-    logSuccess "Added Docker Repo\n"e
+    yum clean all >/dev/null && yum update all >/dev/null 
+    
+    logSuccess "Added Docker Repo\n"
 }
 
 function install_docker {
@@ -50,7 +51,7 @@ function install_docker {
         logStep "Docker already installed - skipping ...\n"
     else
         logStep "Installing docker ..."
-        yum install -y -q docker-ce containerd docker-ce-cli >/dev/null
+        yum install -y -q docker-ce containerd docker-ce-cli wget git vim mlocate >/dev/null
         if [ $? -ne 0 ]; then
             error "Error while installing docker\n"
         fi
