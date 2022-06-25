@@ -83,6 +83,7 @@ function prep_node {
     sudo sh -c "echo 'net.bridge.bridge-nf-call-ip6tables=1' >> /etc/sysctl.conf"
 
     logWarn "Enable ipv4 forward\n"
+    sed -i "/enp0s3/d" /etc/sysctl.conf
     sysctl -w net.ipv4.ip_forward=1
     sed -i 's/#net.ipv4.ip_forward=1/net.ipv4.ip_forward=1/g' /etc/sysctl.conf
     sudo sysctl -p /etc/sysctl.conf
