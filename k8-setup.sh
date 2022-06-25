@@ -2,6 +2,7 @@
 # By: Pravin Bhagade
 
 set -e
+set -E
 
 RED=$'\e[0;31m'
 BLUE='\033[0;94m'
