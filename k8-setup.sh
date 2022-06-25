@@ -136,3 +136,4 @@ function install_k8 {
 # Clean up network overlay remnants
 # sudo ip link delete cni0
 # sudo ip link delete flannel.1
+# sudo ip link delete docker0
