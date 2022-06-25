@@ -42,7 +42,7 @@ EOF
     sudo yum -y -q install yum-utils device-mapper-persistent-data lvm2
     [ -e /etc/yum.repos.d/docker-ce.repo ] && mv /etc/yum.repos.d/docker-ce.repo /etc/yum.repos.d/docker-ce.repo_bk
     yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
-    echo " yum clean all && yum update all "
+    echo "Running..... yum clean all && yum update all"
     yum clean all >/dev/null && yum update all >/dev/null 
     
     logSuccess "Added Docker Repo\n"
