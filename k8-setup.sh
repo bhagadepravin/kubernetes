@@ -163,21 +163,11 @@ install_k8
 
 function tear_down {
     sudo kubeadm reset --force
-    for FILE in /etc/kubernetes/config /etc/etcd/etcd.conf /etc/kubernetes/apiserver /etc/sysconfig/flanneld; do
-        info "delete $FILE"
-        rm -rf $FILE
-    done
-
     systemctl stop kubelet.service
-
-    info "delete docker container"
     docker ps -aq|xargs -I '{}' docker stop {}
     docker ps -aq|xargs -I '{}' docker rm {}
-
     df |grep /var/lib/kubelet|awk '{ print $6 }'|xargs -I '{}' umount {}
     rm -rf /var/lib/kubelet && rm -rf /etc/kubernetes/ && rm -rf /var/lib/etcd
-
-    info "remove package"
-    yum remove -y docker kubernetes etcd kubelet kubeadm kubectl docker-ce containerd
+    yum remove -y -q docker kubernetes etcd kubelet kubeadm kubectl docker-ce containerd
     ip link del docker0
 }
