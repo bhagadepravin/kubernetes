@@ -19,6 +19,9 @@ logStep() {
 logWarn() {
     printf "${YELLOW}$1${NC}\n" 1>&2
 }
+logError() {
+    printf "${RED}$1${NC}\n" 1>&2
+}
 
 function add_repo {
 
@@ -53,7 +56,7 @@ function install_docker {
         logStep "Installing docker ..."
         yum install -y -q docker-ce containerd docker-ce-cli wget git vim mlocate >/dev/null
         if [ $? -ne 0 ]; then
-            error "Error while installing docker\n"
+            logError "Error while installing docker\n"
         fi
     fi
     logSuccess "Docker is Installed\n"
@@ -130,7 +133,7 @@ function install_k8 {
         logSuccess "kubectl taint nodes $(hostname) node-role.kubernetes.io/master:NoSchedule-\n"
 
         if [ $? -ne 0 ]; then
-            error "Error while installing Kubernetes\n"
+            logError "Error while installing Kubernetes\n"
         fi
     fi
 
