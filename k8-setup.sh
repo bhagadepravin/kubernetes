@@ -56,7 +56,7 @@ function install_docker {
         logStep "Docker already installed - skipping ...\n"
     else
         logStep "Installing docker ..."
-        yum install -y docker-ce
+        yum install -y docker-ce containerd
         if [ $? -ne 0 ]; then
             error "Error while installing docker\n"
         fi
@@ -66,6 +66,9 @@ function install_docker {
     systemctl daemon-reload
     systemctl enable docker
     systemctl restart docker
+    rm -rf /etc/containerd/config.toml
+    systemctl restart containerd
+
     logSuccess "Started docker service\n"
 }
 
@@ -107,8 +110,6 @@ function install_k8 {
     logWarn "Pulling kubeadm images\n"
     kubeadm config images pull
     logStep "Installing Kubernetes Inprogress.......\n"
-    rm -rf /etc/containerd/config.toml
-    systemctl restart containerd
 
     NETWORK_OVERLAY_CIDR_NET=$(curl -s https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml | grep -E '"Network": "[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\/[0-9]{1,2}"' | cut -d'"' -f4)
     echo "$NETWORK_OVERLAY_CIDR_NET"
