@@ -2,7 +2,6 @@
 # By: Pravin Bhagade
 
 set -e
-set -E
 
 RED=$'\e[0;31m'
 BLUE='\033[0;94m'
@@ -18,14 +17,6 @@ logStep() {
 }
 logWarn() {
     printf "${YELLOW}$1${NC}\n" 1>&2
-}
-
-check_user(){
-    root=$(id -u)
-    if [ "$root" -ne 0 ] ;then
-        error "must run as root"
-        exit 1
-    fi
 }
 
 function add_repo {
@@ -138,7 +129,6 @@ function install_k8 {
     kubectl get nodes
 }
 
-check_user
 add_repo
 install_docker
 prep_node
