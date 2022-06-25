@@ -2,6 +2,7 @@
 # By: Pravin Bhagade
 
 set -e
+set -E
 
 RED=$'\e[0;31m'
 BLUE='\033[0;94m'
@@ -44,7 +45,7 @@ EOF
 
 function install_docker {
 
-    if which docker >/dev/null; then
+    if service docker status >/dev/null; then
         logStep "Docker already installed - skipping ...\n"
     else
         logStep "Installing docker ..."
@@ -160,5 +161,6 @@ function tear_down {
     df |grep /var/lib/kubelet|awk '{ print $6 }'|xargs -I '{}' umount {}
     rm -rf /var/lib/kubelet && rm -rf /etc/kubernetes/ && rm -rf /var/lib/etcd
     yum remove -y -q docker kubernetes etcd kubelet kubeadm kubectl docker-ce containerd
+    rm -rf /bin/docker
     ip link del docker0
 }
