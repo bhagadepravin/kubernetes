@@ -11,6 +11,14 @@ logWarn() {
     printf "${YELLOW}$1${NC}\n" 1>&2
 }
 
+function check_user{
+    root=$(id -u)
+    if [ "$root" -ne 0 ] ;then
+        error "must run as root"
+        exit 1
+    fi
+}
+
 function add_repo {
 
     [ -e /etc/yum.repos.d/kubernetes.repo ] && mv /etc/yum.repos.d/kubernetes.repo /etc/yum.repos.d/kubernetes.repo_bk
@@ -119,6 +127,12 @@ function install_k8 {
     logSuccess "Check the readiness of nodes\n"
     kubectl get nodes
 }
+
+check_user
+add_repo
+install_docker
+prep_node
+install_k8
 
 # kubectl cluster-info
 # kubeadm token create --print-join-command
