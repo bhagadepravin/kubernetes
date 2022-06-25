@@ -50,7 +50,7 @@ function install_docker {
         logStep "Docker already installed - skipping ...\n"
     else
         logStep "Installing docker ..."
-        yum install -y -q  docker-ce containerd > /dev/null 
+        yum install -y -q  docker-ce containerd docker-ce-cli > /dev/null 
         if [ $? -ne 0 ]; then
             error "Error while installing docker\n"
         fi
@@ -131,23 +131,7 @@ install_docker
 prep_node
 install_k8
 
-# kubectl cluster-info
-# kubeadm token create --print-join-command
-
-########################
-# === Reset Cluster === #
-#########################
-# Reset Cluster
-# sudo kubeadm reset --force
-# yum remove  kubelet kubeadm kubectl docker-ce containerd
-
-# Clean up iptable remnants
-# sudo sh -c "iptables -F && iptables -t nat -F && iptables -t mangle -F && iptables -X"
-
-# Clean up network overlay remnants
-# sudo ip link delete cni0
-# sudo ip link delete flannel.1
-# sudo ip link delete docker0
+# Optional not enabled
 
 function tear_down {
     sudo kubeadm reset --force
@@ -156,7 +140,7 @@ function tear_down {
     docker ps -aq|xargs -I '{}' docker rm {}
     df |grep /var/lib/kubelet|awk '{ print $6 }'|xargs -I '{}' umount {}
     rm -rf /var/lib/kubelet && rm -rf /etc/kubernetes/ && rm -rf /var/lib/etcd
-    yum remove -y -q docker kubernetes etcd kubelet kubeadm kubectl docker-ce containerd
+    yum remove -y -q kubernetes etcd kubelet kubeadm kubectl docker-ce containerd docker-ce-cli
     rm -rf /bin/docker
     ip link del docker0
 }
