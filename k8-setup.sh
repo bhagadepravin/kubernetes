@@ -85,18 +85,18 @@ function install_k8 {
         sed -i 's/^SELINUX=enforcing$/SELINUX=permissive/' /etc/selinux/config
 
         logWarn "Enable br_netfilter kernel module and make persistent\n"
-        sudo modprobe br_netfilter >/dev/null
-        sudo sh -c "echo '1' > /proc/sys/net/bridge/bridge-nf-call-iptables"
-        sudo sh -c "echo '1' > /proc/sys/net/bridge/bridge-nf-call-ip6tables"
-        sudo sh -c "echo 'net.bridge.bridge-nf-call-iptables=1' >> /etc/sysctl.conf"
-        sudo sh -c "echo 'net.bridge.bridge-nf-call-ip6tables=1' >> /etc/sysctl.conf"
+        sudo modprobe br_netfilter 2>/dev/null >/dev/null
+        sudo sh -c "echo '1' > /proc/sys/net/bridge/bridge-nf-call-iptables" 2>/dev/null >/dev/null
+        sudo sh -c "echo '1' > /proc/sys/net/bridge/bridge-nf-call-ip6tables" 2>/dev/null >/dev/null
+        sudo sh -c "echo 'net.bridge.bridge-nf-call-iptables=1' >> /etc/sysctl.conf" 2>/dev/null >/dev/null
+        sudo sh -c "echo 'net.bridge.bridge-nf-call-ip6tables=1' >> /etc/sysctl.conf" 2>/dev/null >/dev/null
 
         logWarn "Enable ipv4 forward\n"
-        sed -i "/enp0s3/d" /etc/sysctl.conf
-        sysctl -w net.ipv4.ip_forward=1
-        sed -i 's/#net.ipv4.ip_forward=1/net.ipv4.ip_forward=1/g' /etc/sysctl.conf
+        sed -i "/enp0s3/d" /etc/sysctl.conf 2>/dev/null >/dev/null
+        sysctl -w net.ipv4.ip_forward=1 2>/dev/null >/dev/null
+        sed -i 's/#net.ipv4.ip_forward=1/net.ipv4.ip_forward=1/g' /etc/sysctl.conf 2>/dev/null >/dev/null
         sudo sysctl -p /etc/sysctl.conf >/dev/null
-        yum install -y -q kubelet kubeadm kubectl
+        yum install -y -q kubelet kubeadm kubectl 2>/dev/null >/dev/null
         systemctl enable kubelet.service
         systemctl daemon-reload
         systemctl restart kubelet
@@ -112,8 +112,8 @@ function install_k8 {
         logSuccess "Kubernetes is Installed\n"
 
         logStep "Enabling kubectl bash-completion"
-        sudo yum -y -q install bash-completion >/dev/null
-        echo "source <(kubectl completion bash)" >>~/.bashrc
+        sudo yum -y -q install bash-completion 2>/dev/null >/dev/null
+        source <(kubectl completion bash)" >>~/.bashrc 
 
         logStep "Copy the cluster configuration to the regular users home directory\n"
         [ -e $HOME/.kube ] && mv $HOME/.kube $HOME/.kube_bk
