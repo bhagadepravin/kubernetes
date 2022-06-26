@@ -38,14 +38,6 @@ gpgkey=https://packages.cloud.google.com/yum/doc/yum-key.gpg https://packages.cl
 EOF
 
     logSuccess "Added Kubernetes Repo\n"
-
-    sudo yum -y -q install yum-utils device-mapper-persistent-data lvm2
-    [ -e /etc/yum.repos.d/docker-ce.repo ] && mv /etc/yum.repos.d/docker-ce.repo /etc/yum.repos.d/docker-ce.repo_bk
-    yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
-    echo "Running..... yum clean all && yum update all"
-    yum clean all >/dev/null && yum update all >/dev/null 
-    
-    logSuccess "Added Docker Repo\n"
 }
 
 function install_docker {
@@ -54,6 +46,13 @@ function install_docker {
         logStep "Docker already installed - skipping ...\n"
     else
         logStep "Installing docker ..."
+    sudo yum -y -q install yum-utils device-mapper-persistent-data lvm2
+    [ -e /etc/yum.repos.d/docker-ce.repo ] && mv /etc/yum.repos.d/docker-ce.repo /etc/yum.repos.d/docker-ce.repo_bk
+    yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
+    echo "Running..... yum clean all && yum update all"
+    yum clean all 2>/dev/null >/dev/null && yum update all 2>/dev/null >/dev/null 
+    
+    logSuccess "Added Docker Repo\n"
         yum install -y -q docker-ce containerd docker-ce-cli wget git vim mlocate >/dev/null
         if [ $? -ne 0 ]; then
             logError "Error while installing docker\n"
