@@ -46,7 +46,7 @@ function install_docker {
         logStep "Docker already installed - skipping ...\n"
     else
         logStep "Installing docker ..."
-    sudo yum -y -q install yum-utils device-mapper-persistent-data lvm2
+    sudo yum -y -q install yum-utils device-mapper-persistent-data lvm2 2>/dev/null >/dev/null
     [ -e /etc/yum.repos.d/docker-ce.repo ] && mv /etc/yum.repos.d/docker-ce.repo /etc/yum.repos.d/docker-ce.repo_bk
     yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
     echo "Running..... yum clean all && yum update all"
