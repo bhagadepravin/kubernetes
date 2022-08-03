@@ -113,7 +113,7 @@ function install_k8 {
 
         logStep "Enabling kubectl bash-completion"
         sudo yum -y -q install bash-completion 2>/dev/null >/dev/null
-        source <(kubectl completion bash)" >>~/.bashrc 
+        echo "source <(kubectl completion bash)" >>~/.bashrc
 
         logStep "Copy the cluster configuration to the regular users home directory\n"
         [ -e $HOME/.kube ] && mv $HOME/.kube $HOME/.kube_bk
