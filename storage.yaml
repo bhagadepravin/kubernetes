@@ -72,7 +72,7 @@ spec:
         - key: kubernetes.io/hostname
           operator: In
           values:
-          - ${HOSTNAME}
+          - `hostname -f`
 EOF
 
 # on master:
