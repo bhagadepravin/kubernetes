@@ -1,0 +1,79 @@
+cat > storageClass.yaml << EOF
+kind: StorageClass
+apiVersion: storage.k8s.io/v1
+metadata:
+  name: my-local-storage
+provisioner: kubernetes.io/no-provisioner
+volumeBindingMode: WaitForFirstConsumer
+EOF
+
+kubectl create -f storageClass.yaml
+
+DIRNAME="vol1"
+mkdir -p /mnt/disk/$DIRNAME 
+chcon -Rt svirt_sandbox_file_t /mnt/disk/$DIRNAME
+chmod 777 /mnt/disk/$DIRNAME
+
+DIRNAME="vol2"
+mkdir -p /mnt/disk/$DIRNAME 
+chcon -Rt svirt_sandbox_file_t /mnt/disk/$DIRNAME
+chmod 777 /mnt/disk/$DIRNAME
+
+
+cat > persistentVolume_vol1.yaml << EOF
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: my-local-pv1
+spec:
+  capacity:
+    storage: 10Gi
+  volumeMode: Filesystem
+  accessModes:
+  - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: 
+  local:
+    path: /mnt/disk/vol1
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: kubernetes.io/hostname
+          operator: In
+          values:
+          - hdp.sre.ops.iti.acceldata.dev
+EOF
+
+# on master:
+kubectl create -f persistentVolume_vol1.yaml
+
+
+
+cat > persistentVolume_vol2.yaml << EOF
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: my-local-pv2
+spec:
+  capacity:
+    storage: 1Gi
+  volumeMode: Filesystem
+  accessModes:
+  - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: 
+  local:
+    path: /mnt/disk/vol2
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: kubernetes.io/hostname
+          operator: In
+          values:
+          - hdp.sre.ops.iti.acceldata.dev
+EOF
+
+# on master:
+kubectl create -f persistentVolume_vol1.yaml
