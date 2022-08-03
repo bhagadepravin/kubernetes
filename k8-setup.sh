@@ -62,7 +62,7 @@ sestatus
 setenforce 0
 sed -i 's/^SELINUX=enforcing$/SELINUX=permissive/' /etc/selinux/config
 
-yum install -y kubelet-1.21.14 kubeadm-1.21.14  kubeadm-1.21.14
+yum install -y kubelet-1.21.14 kubeadm-1.21.14 kubectl-1.21.14
 
 systemctl enable kubelet.service 
 
@@ -72,6 +72,7 @@ sudo sh -c "echo '1' > /proc/sys/net/bridge/bridge-nf-call-iptables"
 sudo sh -c "echo '1' > /proc/sys/net/bridge/bridge-nf-call-ip6tables"
 sudo sh -c "echo 'net.bridge.bridge-nf-call-iptables=1' >> /etc/sysctl.conf"
 sudo sh -c "echo 'net.bridge.bridge-nf-call-ip6tables=1' >> /etc/sysctl.conf"
+sudo sh -c "echo 'net.ipv4.ip_forward=1'>> /etc/sysctl.conf"
 sysctl -w net.ipv4.ip_forward=1
 sed -i 's/#net.ipv4.ip_forward=1/net.ipv4.ip_forward=1/g' /etc/sysctl.conf
 sudo sysctl -p /etc/sysctl.conf
