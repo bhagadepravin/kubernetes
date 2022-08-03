@@ -1,5 +1,33 @@
 # Kubernetes // **Troubleshooting**
 
+#### Torch Setup
+```bash
+# Install Kubernetes 1.21
+
+# Below curl cmd will install docker and kubernetes.
+curl -sSL https://raw.githubusercontent.com/bhagadepravin/kubernetes/k8-1.21/k8-setup.sh | bash
+
+kubectl get nodes
+
+# Setup torch.
+
+# We need to configure storage provider first with storageclass as empty.
+# It will create 2 pv with storage 10G and 1G with volumemode as FileSystem and storageclass as empty
+
+curl -sSL https://raw.githubusercontent.com/bhagadepravin/kubernetes/main/storage.yaml | bash
+
+kubectl get pv 
+
+# now install torch.
+
+rm -rf torch.sh && wget https://bitbucket.org/pravinbhagade/automations/raw/5d44c96faae741702081c6d7ea7a241ef3afe772/torch_complete.sh && mv -f torch_complete.sh torch.sh && chmod +x torch.sh && ./torch.sh
+
+# run 
+./torch.sh install_torch_eks
+
+# as we have K8 already installed, so we can use above cmd to setup torch in torch-auto namespace
+```
+
 K8 Setup on CentOS 7
 
 * **Master Node**
