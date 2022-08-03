@@ -1,10 +1,32 @@
 #!/bin/bash
+# By: Pravin Bhagade
 
-## Setup K8 on Centos 7 by Pravin Bhagade
-### Add K8 repository
-echo "Added K8 repo"
+set -E
 
-cat <<EOF > /etc/yum.repos.d/kubernetes.repo
+RED=$'\e[0;31m'
+BLUE='\033[0;94m'
+GREEN=$'\e[0;32m'
+YELLOW='\033[0;33m'
+NC=$'\e[0m'
+
+logSuccess() {
+    printf "${GREEN}✔ $1${NC}\n" 1>&2
+}
+logStep() {
+    printf "${BLUE}➜ $1${NC}\n" 1>&2
+}
+logWarn() {
+    printf "${YELLOW}$1${NC}\n" 1>&2
+}
+logError() {
+    printf "${RED}$1${NC}\n" 1>&2
+}
+
+function add_repo {
+
+    [ -e /etc/yum.repos.d/kubernetes.repo ] && mv /etc/yum.repos.d/kubernetes.repo /etc/yum.repos.d/kubernetes.repo_bk
+
+    cat <<EOF >/etc/yum.repos.d/kubernetes.repo
 [kubernetes]
 name=Kubernetes
 baseurl=https://packages.cloud.google.com/yum/repos/kubernetes-el7-x86_64
@@ -14,151 +36,122 @@ repo_gpgcheck=0
 gpgkey=https://packages.cloud.google.com/yum/doc/yum-key.gpg https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg
 EOF
 
-### ### Add Docker repository.
-# Install dependencies for docker-ce
-sudo yum -y install yum-utils device-mapper-persistent-data lvm2
+    logSuccess "Added Kubernetes Repo\n"
+}
 
-echo "Added docker repo"
-yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo 
+function install_docker {
 
-yum clean all && yum update all  && yum install -y wget git vim docker-ce iptables
+    if docker --version >/dev/null; then
+        logStep "Docker already installed - skipping ...\n"
+    else
+        logStep "Installing docker ..."
+    sudo yum -y -q install yum-utils device-mapper-persistent-data lvm2 2>/dev/null >/dev/null
+    [ -e /etc/yum.repos.d/docker-ce.repo ] && mv /etc/yum.repos.d/docker-ce.repo /etc/yum.repos.d/docker-ce.repo_bk
+    yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
+    echo "Running..... yum clean all && yum update all"
+    yum clean all 2>/dev/null >/dev/null && yum update all 2>/dev/null >/dev/null 
+    
+    logSuccess "Added Docker Repo\n"
+        yum install -y -q docker-ce containerd docker-ce-cli wget git vim mlocate >/dev/null
+        if [ $? -ne 0 ]; then
+            logError "Error while installing docker\n"
+        fi
+    fi
+    logSuccess "Docker is Installed\n"
 
-## Create /etc/docker directory.
-mkdir /etc/docker
+    systemctl daemon-reload
+    systemctl enable docker >/dev/null
+    systemctl restart docker
+    rm -rf /etc/containerd/config.toml
+    systemctl restart containerd
 
-# Setup daemon.
-#cat > /etc/docker/daemon.json <<EOF
-#{
-#  "exec-opts": ["native.cgroupdriver=systemd"],
-#  "log-driver": "json-file",
-#  "log-opts": {
-#    "max-size": "100m"
-#  },
-#  "storage-driver": "overlay2",
-#  "storage-opts": [
-#    "overlay2.override_kernel_check=true"
- # ]
-#}
-#EOF
+    logSuccess "Started docker service\n"
+}
 
-mkdir -p /etc/systemd/system/docker.service.d
+function install_k8 {
 
-# Restart Docker
-systemctl daemon-reload
-systemctl enable docker
-systemctl restart docker
+    if kubectl version --short 2>/dev/null >/dev/null && kubectl get nodes | grep control-plane >/dev/null; then
+        logStep "Kubernetes already installed - skipping ...\n"
+    else
+        logStep "Installing Kubernetes.......\n"
+        
+        logWarn "Disabling Swap\n"
+        swapoff -a
+        sed -i 's/^\(.*swap.*\)$/#\1/' /etc/fstab
 
-# Disable swap
-swapoff -a
-sed -i 's/^\(.*swap.*\)$/#\1/' /etc/fstab 
+        logWarn "Disabling Selinux\n"
+        setenforce 0
+        sed -i 's/^SELINUX=enforcing$/SELINUX=permissive/' /etc/selinux/config
 
-# Disable default iptables configuration as it will break kubernetes services (API, coredns, etc...)
-sudo sh -c "cp /etc/sysconfig/iptables /etc/sysconfig/iptables.ORIG && iptables --flush && iptables --flush && iptables-save > /etc/sysconfig/iptables"
-sudo systemctl restart iptables.service
+        logWarn "Enable br_netfilter kernel module and make persistent\n"
+        sudo modprobe br_netfilter 2>/dev/null >/dev/null
+        sudo sh -c "echo '1' > /proc/sys/net/bridge/bridge-nf-call-iptables" 2>/dev/null >/dev/null
+        sudo sh -c "echo '1' > /proc/sys/net/bridge/bridge-nf-call-ip6tables" 2>/dev/null >/dev/null
+        sudo sh -c "echo 'net.bridge.bridge-nf-call-iptables=1' >> /etc/sysctl.conf" 2>/dev/null >/dev/null
+        sudo sh -c "echo 'net.bridge.bridge-nf-call-ip6tables=1' >> /etc/sysctl.conf" 2>/dev/null >/dev/null
 
-sestatus
+        logWarn "Enable ipv4 forward\n"
+        grep "enp0s3"  /etc/sysctl.conf > /dev/null || sed -i "/enp0s3/d" /etc/sysctl.conf 2>/dev/null >/dev/null
+        grep "net.ipv4.ip_forward=1"  /etc/sysctl.conf > /dev/null || sh -c "echo 'net.ipv4.ip_forward=1' >> /etc/sysctl.conf" 2>/dev/null >/dev/null
+        sudo sysctl -p /etc/sysctl.conf 2>/dev/null >/dev/null
+        sudo sysctl -p /etc/sysctl.conf >/dev/null
+        yum install -y -q kubelet-1.21.14 kubeadm-1.21.14 kubectl-1.21.14 2>/dev/null >/dev/null
+        systemctl enable kubelet.service
+        systemctl daemon-reload
+        systemctl restart kubelet
 
-# disable SELinux. If you want this enabled, comment out the next 2 lines. But you may encounter issues with enabling SELinux
-setenforce 0
-sed -i 's/^SELINUX=enforcing$/SELINUX=permissive/' /etc/selinux/config
+        logWarn "Pulling kubeadm images\n"
+        kubeadm config images pull >/dev/null
+        logStep "Installing Kubernetes Inprogress.......\n"
 
-yum install -y kubelet-1.21.14 kubeadm-1.21.14 kubectl-1.21.14
+        NETWORK_OVERLAY_CIDR_NET=$(curl -s https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml | grep -E '"Network": "[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\/[0-9]{1,2}"' | cut -d'"' -f4)
 
-systemctl enable kubelet.service 
+        sudo kubeadm init --pod-network-cidr=${NETWORK_OVERLAY_CIDR_NET}
 
-# Load/Enable br_netfilter kernel module and make persistent
-sudo modprobe br_netfilter
-sudo sh -c "echo '1' > /proc/sys/net/bridge/bridge-nf-call-iptables"
-sudo sh -c "echo '1' > /proc/sys/net/bridge/bridge-nf-call-ip6tables"
-sudo sh -c "echo 'net.bridge.bridge-nf-call-iptables=1' >> /etc/sysctl.conf"
-sudo sh -c "echo 'net.bridge.bridge-nf-call-ip6tables=1' >> /etc/sysctl.conf"
-sudo sh -c "echo 'net.ipv4.ip_forward=1'>> /etc/sysctl.conf"
-sysctl -w net.ipv4.ip_forward=1
-sed -i 's/#net.ipv4.ip_forward=1/net.ipv4.ip_forward=1/g' /etc/sysctl.conf
-sudo sysctl -p /etc/sysctl.conf
+        logSuccess "Kubernetes is Installed\n"
 
-# Restarting services
-systemctl daemon-reload
-systemctl restart kubelet
-echo "kubeadm config images pull"
-kubeadm config images pull
+        logStep "Enabling kubectl bash-completion"
+        sudo yum -y -q install bash-completion 2>/dev/null >/dev/null
+        source <(kubectl completion bash)" >>~/.bashrc 
 
-echo "reboot if selinux was enabled"
+        logStep "Copy the cluster configuration to the regular users home directory\n"
+        [ -e $HOME/.kube ] && mv $HOME/.kube $HOME/.kube_bk
+        mkdir -p $HOME/.kube
+        sudo cp -r /etc/kubernetes/admin.conf $HOME/.kube/config
+        sudo chown $(id -u):$(id -g) $HOME/.kube/config
 
-NETWORK_OVERLAY_CIDR_NET=`curl -s https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml | grep -E '"Network": "[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\/[0-9]{1,2}"' | cut -d'"' -f4`
-echo "$NETWORK_OVERLAY_CIDR_NET"
+        logStep "Deploying the weave Network Overlay\n"
+        kubectl apply -f "https://cloud.weave.works/k8s/net?k8s-version=$(kubectl version | base64 | tr -d '\n')"
+        # kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml
 
-sudo kubeadm init --pod-network-cidr=${NETWORK_OVERLAY_CIDR_NET}
+        logSuccess "Check the readiness of nodes\n"
+        kubectl get nodes
 
+        logStep "Remove node-role.kubernetes.io/master:NoSchedule taint, if its a single node cluster and you want deploy pods on control plane as well..\n"
+        logError "kubectl taint nodes $(hostname) node-role.kubernetes.io/master:NoSchedule-\n"
+        logError "kubectl taint nodes $(hostname) node-role.kubernetes.io/control-plane:NoSchedule-\n"
 
-#echo " Install K9s"
-#curl -sS https://webinstall.dev/k9s | bash
-#cp /root/.local/opt/k9s-*/bin/k9s /usr/bin/ 
-#source ~/.bash_profile
+        if [ $? -ne 0 ]; then
+            logError "Error while installing Kubernetes\n"
+        fi
+    fi
 
+}
 
-#yum install epel-release -y
-#yum install -y snapd
-#systemctl enable --now snapd.socket
-#ln -s /var/lib/snapd/snap /snap
-#service snapd start
-#snap install k9s
+add_repo
+install_docker
+install_k8
 
+# Optional not enabled
 
-# Enable kubectl bash-completion
-sudo yum -y install bash-completion
-echo "source <(kubectl completion bash)"
-echo "source <(kubectl completion bash)" >> ~/.bashrc
-
-
-# Copy the cluster configuration to the regular users home directory
-mkdir -p $HOME/.kube
-sudo cp -r /etc/kubernetes/admin.conf $HOME/.kube/config
-sudo chown $(id -u):$(id -g) $HOME/.kube/config
-
-# Deploy the Flannel Network Overlay
-# kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml
-
-# Deploy Weave Net  Network
-kubectl apply -f "https://cloud.weave.works/k8s/net?k8s-version=$(kubectl version | base64 | tr -d '\n')"
-
-# check the readiness of nodes
-kubectl get nodes
-
-# check that coredns, apiserver, etcd, and flannel pods are running
-kubectl get pods --all-namespaces
-
-echo "kubeadm token create --print-join-command"
-kubectl cluster-info
-kubeadm token create --print-join-command
-
-########################
-# === Reset Cluster === #
-#########################
-# Reset Cluster
-# sudo kubeadm reset
-
-# Clean up iptable remnants
-# sudo sh -c "iptables -F && iptables -t nat -F && iptables -t mangle -F && iptables -X"
-
-# Clean up network overlay remnants
-# sudo ip link delete cni0
-# sudo ip link delete flannel.1
-
-
-
-###########################
-# === Troubleshooting === #
-###########################
-# If exposed deployment intermittently responds with "no route to host", run the following on the troublesome host
-# sudo sh -c "iptables --flush && iptables --flush" && sudo systemctl restart docker.service
-
-# If the previous command fixes the intermittent problem, there is most likely an iptables rule preventing incoming traffic to the ingress controller
-#  sudo sh -c "cp /etc/sysconfig/iptables /etc/sysconfig/iptables.ORIG && iptables --flush && iptables --flush && iptables-save > /etc/sysconfig/iptables"
-#  sudo systemctl restart iptables.service
-#  sudo systemctl restart docker.service
-# export kubever=$(kubectl version | base64 | tr -d '\n')
-# kubectl apply -f https://cloud.weave.works/k8s/net?k8s-version=$kubever
-
-# kubelet troubleshoting # journalctl -b -f -u kubelet.service
-# make sure you call kubeadm init/join with e.g. --v=2 to have more details on what's going on.
+function tear_down {
+    sudo kubeadm reset --force
+    systemctl stop kubelet.service
+    docker ps -aq | xargs -I '{}' docker stop {}
+    docker ps -aq | xargs -I '{}' docker rm {}
+    df | grep /var/lib/kubelet | awk '{ print $6 }' | xargs -I '{}' umount {}
+    rm -rf /var/lib/kubelet && rm -rf /etc/kubernetes/ && rm -rf /var/lib/etcd
+    yum remove -y -q kubernetes etcd kubelet kubeadm kubectl docker-ce containerd docker-ce-cli
+    rm -rf /bin/docker
+    ip link del docker0
+}
