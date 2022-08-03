@@ -9,19 +9,12 @@ EOF
 
 kubectl create -f storageClass.yaml
 
-mkdir -p /mnt/disk/
+mkdir -p /mnt/disks/
 for vol in vol1 vol2 vol3 vol4 vol5 vol6 vol7 vol8; do
     mkdir /mnt/disks/$vol
-    chcon -Rt svirt_sandbox_file_t /mnt/disk/$vol
-    chmod 777 /mnt/disk/$vol
+    chcon -Rt svirt_sandbox_file_t /mnt/disks/$vol
+    chmod 777 /mnt/disks/$vol
 done
-
-
-DIRNAME="vol2"
-mkdir -p /mnt/disk/$DIRNAME 
-chcon -Rt svirt_sandbox_file_t /mnt/disk/$DIRNAME
-chmod 777 /mnt/disk/$DIRNAME
-
 
 cat > persistentVolume_vol1.yaml << EOF
 apiVersion: v1
