@@ -26,6 +26,54 @@ rm -rf torch.sh && wget https://bitbucket.org/pravinbhagade/automations/raw/5d44
 ./torch.sh install_torch_eks
 
 # as we have K8 already installed, so we can use above cmd to setup torch in torch-auto namespace
+
+First kotadm deploys "kotsadm-minio-0" pod which create pvc, which needs 10G storage, which above storage.yaml will take care of it.
+After that "kotsadm-postgres-0" pod is launched which needs 1G storage, which above storage.yaml will take care of it.
+Total 4 pods are launced as below, after all 4 pods are is in running state, then "Torch" services pods are launced.
+
+
+kotsadm-5658bc6c67-9mgrp            0/1     Init:2/4            0          27s
+kotsadm-minio-0                     1/1     Running             0          90s
+kotsadm-operator-669b588bb4-4gcrw   0/1     ContainerCreating   0          26s
+kotsadm-postgres-0                  1/1     Running             0          58s
+
+>>>>>>                                                                 
+
+NAME                                READY   STATUS    RESTARTS   AGE
+kotsadm-5658bc6c67-9mgrp            1/1     Running   0          2m34s
+kotsadm-minio-0                     1/1     Running   0          3m37s
+kotsadm-operator-669b588bb4-4gcrw   1/1     Running   0          2m33s
+kotsadm-postgres-0                  1/1     Running   0          3m5s
+
+>>>>>
+kubectl get po -n torch-auto
+>
+[root@torchtest ~]# kubectl get po -n torch-auto
+NAME                                  READY   STATUS              RESTARTS   AGE
+ad-analysis-service-77749bc48-hgz9p   0/1     ContainerCreating   0          8s
+ad-catalog-568948bb84-hmbf5           0/1     Init:0/1            0          8s
+ad-catalog-db-787dbb9546-vtcb7        0/1     Pending             0          8s
+ad-dashplots-79d8944fdf-n5wpv         0/1     Init:0/1            0          8s
+ad-notification-7d96fc4759-4n5qd      0/1     ContainerCreating   0          8s
+ad-torch-ml-84c6df6645-xmqdq          0/1     ContainerCreating   0          8s
+admin-central-795d5cd6b6-sdbxn        0/1     ContainerCreating   0          8s
+admin-central-ui-7c68486757-wr99d     0/1     ContainerCreating   0          8s
+keycloak-0                            0/1     Init:0/1            0          7s
+kotsadm-5658bc6c67-9mgrp              1/1     Running             0          3m19s
+kotsadm-minio-0                       1/1     Running             0          4m22s
+kotsadm-operator-669b588bb4-4gcrw     1/1     Running             0          3m18s
+kotsadm-postgres-0                    1/1     Running             0          3m50s
+nats-7746474b96-l6k78                 0/1     Pending             0          8s
+redis-5498d54679-qh2ft                0/1     ContainerCreating   0          7s
+torch-api-gateway-58bc4bb56b-955mh    0/1     Pending             0          7s
+torch-glossary-78d76444ff-klz4h       0/1     ContainerCreating   0          7s
+torch-monitors-5fbb8bb6b4-fdfb8       0/1     Pending             0          7s
+torch-monitors-5fbb8bb6b4-fg4cl       0/1     Pending             0          7s
+torch-pipeline-b84f6d849-8hfwd        0/1     Pending             0          7s
+torch-reporting-657886c5f8-2cf85      0/1     Pending             0          6s
+torch-reporting-657886c5f8-n2ptz      0/1     Init:0/1            0          6s
+torch-swagger-6fbd9b8446-26skn        0/1     Pending             0          6s
+torch-ui-6f6464cbd6-9bkkr             0/1     Pending             0          6s
 ```
 
 K8 Setup on CentOS 7
