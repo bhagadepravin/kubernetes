@@ -76,4 +76,4 @@ spec:
 EOF
 
 # on master:
-kubectl create -f persistentVolume_vol1.yaml
+kubectl create -f persistentVolume_vol2.yaml
