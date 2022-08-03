@@ -62,7 +62,7 @@ sestatus
 setenforce 0
 sed -i 's/^SELINUX=enforcing$/SELINUX=permissive/' /etc/selinux/config
 
-yum install -y kubelet-1.17.3 kubeadm-1.17.3  kubeadm-1.17.3
+yum install -y kubelet-1.21.14 kubeadm-1.21.14  kubeadm-1.21.14
 
 systemctl enable kubelet.service 
 
