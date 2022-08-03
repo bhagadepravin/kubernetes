@@ -91,7 +91,7 @@ function install_k8 {
         sudo sh -c "echo 'net.bridge.bridge-nf-call-ip6tables=1' >> /etc/sysctl.conf" 2>/dev/null >/dev/null
 
         logWarn "Enable ipv4 forward\n"
-        grep "enp0s3"  /etc/sysctl.conf > /dev/null || sed -i "/enp0s3/d" /etc/sysctl.conf 2>/dev/null >/dev/null
+        grep "enp0s3"  /etc/sysctl.conf  2>/dev/null >/dev/null || sed -i "/enp0s3/d" /etc/sysctl.conf 2>/dev/null >/dev/null
         grep "net.ipv4.ip_forward=1"  /etc/sysctl.conf > /dev/null || sh -c "echo 'net.ipv4.ip_forward=1' >> /etc/sysctl.conf" 2>/dev/null >/dev/null
         sudo sysctl -p /etc/sysctl.conf 2>/dev/null >/dev/null
         sudo sysctl -p /etc/sysctl.conf >/dev/null
