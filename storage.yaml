@@ -9,10 +9,13 @@ EOF
 
 kubectl create -f storageClass.yaml
 
-DIRNAME="vol1"
-mkdir -p /mnt/disk/$DIRNAME 
-chcon -Rt svirt_sandbox_file_t /mnt/disk/$DIRNAME
-chmod 777 /mnt/disk/$DIRNAME
+mkdir -p /mnt/disk/
+for vol in vol1 vol2 vol3 vol4 vol5 vol6 vol7 vol8; do
+    mkdir /mnt/disks/$vol
+    chcon -Rt svirt_sandbox_file_t /mnt/disk/$vol
+    chmod 777 /mnt/disk/$vol
+done
+
 
 DIRNAME="vol2"
 mkdir -p /mnt/disk/$DIRNAME 
@@ -75,7 +78,173 @@ spec:
           - ${HOSTNAME}
 EOF
 
-# on master:
  kubectl create -f persistentVolume_vol2.yaml
 
-kubectl get pv
+cat > persistentVolume_vol3.yaml << EOF
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: my-local-pv3
+spec:
+  capacity:
+    storage: 10Gi
+  volumeMode: Filesystem
+  accessModes:
+  - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: 
+  local:
+    path: /mnt/disk/vol3
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: kubernetes.io/hostname
+          operator: In
+          values:
+          - ${HOSTNAME}
+EOF
+
+# on master:
+ kubectl create -f persistentVolume_vol3.yaml
+
+cat > persistentVolume_vol4.yaml << EOF
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: my-local-pv4
+spec:
+  capacity:
+    storage: 10Gi
+  volumeMode: Filesystem
+  accessModes:
+  - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: 
+  local:
+    path: /mnt/disk/vol4
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: kubernetes.io/hostname
+          operator: In
+          values:
+          - ${HOSTNAME}
+EOF
+
+# on master:
+ kubectl create -f persistentVolume_vol4.yaml
+
+
+cat > persistentVolume_vol5.yaml << EOF
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: my-local-pv5
+spec:
+  capacity:
+    storage: 10Gi
+  volumeMode: Filesystem
+  accessModes:
+  - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: 
+  local:
+    path: /mnt/disk/vol5
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: kubernetes.io/hostname
+          operator: In
+          values:
+          - ${HOSTNAME}
+EOF
+
+# on master:
+ kubectl create -f persistentVolume_vol5.yaml
+
+cat > persistentVolume_vol6.yaml << EOF
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: my-local-pv6
+spec:
+  capacity:
+    storage: 8Gi
+  volumeMode: Filesystem
+  accessModes:
+  - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: 
+  local:
+    path: /mnt/disk/vol6
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: kubernetes.io/hostname
+          operator: In
+          values:
+          - ${HOSTNAME}
+EOF
+
+# on master:
+ kubectl create -f persistentVolume_vol6.yaml
+
+cat > persistentVolume_vol7.yaml << EOF
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: my-local-pv7
+spec:
+  capacity:
+    storage: 8Gi
+  volumeMode: Filesystem
+  accessModes:
+  - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: 
+  local:
+    path: /mnt/disk/vol7
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: kubernetes.io/hostname
+          operator: In
+          values:
+          - ${HOSTNAME}
+EOF
+
+# on master:
+ kubectl create -f persistentVolume_vol7.yaml
+
+cat > persistentVolume_vol8.yaml << EOF
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: my-local-pv8
+spec:
+  capacity:
+    storage: 10Gi
+  volumeMode: Filesystem
+  accessModes:
+  - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: 
+  local:
+    path: /mnt/disk/vol8
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: kubernetes.io/hostname
+          operator: In
+          values:
+          - ${HOSTNAME}
+EOF
+
+# on master:
+ kubectl create -f persistentVolume_vol8.yaml
