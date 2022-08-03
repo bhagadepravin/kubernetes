@@ -4,9 +4,9 @@
 set -E
 
 RED=$'\e[0;31m'
-BLUE='\033[0;94m'
+BLUE=$'\033[0;94m'
 GREEN=$'\e[0;32m'
-YELLOW='\033[0;33m'
+YELLOW=$'\033[0;33m'
 NC=$'\e[0m'
 
 logSuccess() {
