@@ -120,5 +120,5 @@ cgroupDriver: cgroupfs
 kubeadm init --config kubeadm-config.yaml
 
 or 
-sudo sed -i "s/^\(KUBELET_EXTRA_ARGS=\)\(.*\)$/\1\"--cgroup-driver=$(sudo docker info | grep -i cgroup | cut -d" " -f2 | tail -n1)\2\"/" /etc/sysconfig/kubelet
+sudo sed -i "s/^\(KUBELET_EXTRA_ARGS=\)\(.*\)$/\1\"--cgroup-driver=$(sudo docker info | grep -i cgroup | cut -d" " -f4  | head -n1)\2\"/" /etc/sysconfig/kubelet
 ```
