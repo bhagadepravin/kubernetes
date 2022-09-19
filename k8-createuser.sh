@@ -89,14 +89,6 @@ cafile=/tmp/cacert.$$
 current_context=$(kubectl config view --raw -o jsonpath="{.current-context}")
 cluster=$(kubectl config view --raw -o jsonpath="{.contexts[?(@.name==\"$current_context\")].context.cluster}")
 address=$(kubectl config view --raw -o jsonpath="{.clusters[?(@.name==\"$cluster\")].cluster.server}")
-echo "current_context"
-echo $current_context
-echo "cluster"
-echo $cluster
-echo "address"
-echo $address
-echo "kubeconfig"
-echo "kubeconfig"
 cacert_data=$(kubectl config view --raw -o jsonpath="{.clusters[?(@.name==\"$cluster\")].cluster.certificate-authority-data}")
 if [ -z ${cacert_data} ] ; then
     echo "No cert data found"
