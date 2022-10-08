@@ -90,7 +90,7 @@ function install_k8 {
         sudo sh -c "echo 'net.bridge.bridge-nf-call-iptables=1' >> /etc/sysctl.conf" 2>/dev/null >/dev/null
         sudo sh -c "echo 'net.bridge.bridge-nf-call-ip6tables=1' >> /etc/sysctl.conf" 2>/dev/null >/dev/null
 
-        logWarn "Enable ipv4 forward\n"
+        logWarn "Enable ipv4 forwarding\n"
         grep "enp0s3"  /etc/sysctl.conf  2>/dev/null >/dev/null || sed -i "/enp0s3/d" /etc/sysctl.conf 2>/dev/null >/dev/null
         grep "net.ipv4.ip_forward=1"  /etc/sysctl.conf > /dev/null || sh -c "echo 'net.ipv4.ip_forward=1' >> /etc/sysctl.conf" 2>/dev/null >/dev/null
         sudo sysctl -p /etc/sysctl.conf 2>/dev/null >/dev/null
@@ -101,7 +101,7 @@ function install_k8 {
 
         logWarn "Pulling kubeadm images\n"
         kubeadm config images pull >/dev/null
-        logStep "Installing Kubernetes Inprogress.......\n"
+        logStep "Installing Kubernetes In-progress.......\n"
 
         NETWORK_OVERLAY_CIDR_NET=$(curl -s https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml | grep -E '"Network": "[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\/[0-9]{1,2}"' | cut -d'"' -f4)
 
