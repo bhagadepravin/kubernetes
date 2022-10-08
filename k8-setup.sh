@@ -60,7 +60,7 @@ function install_docker {
     logSuccess "Docker is Installed\n"
 
     systemctl daemon-reload
-    systemctl enable docker >/dev/null
+    systemctl enable docker 2>/dev/null >/dev/null 
     systemctl restart docker
     rm -rf /etc/containerd/config.toml
     systemctl restart containerd
@@ -94,9 +94,8 @@ function install_k8 {
         grep "enp0s3"  /etc/sysctl.conf  2>/dev/null >/dev/null || sed -i "/enp0s3/d" /etc/sysctl.conf 2>/dev/null >/dev/null
         grep "net.ipv4.ip_forward=1"  /etc/sysctl.conf > /dev/null || sh -c "echo 'net.ipv4.ip_forward=1' >> /etc/sysctl.conf" 2>/dev/null >/dev/null
         sudo sysctl -p /etc/sysctl.conf 2>/dev/null >/dev/null
-        sudo sysctl -p /etc/sysctl.conf >/dev/null
         yum install -y -q kubelet-1.23.12 kubeadm-1.23.12 kubectl-1.23.12 2>/dev/null >/dev/null
-        systemctl enable kubelet.service
+        systemctl enable kubelet.service 2>/dev/null >/dev/null 
         systemctl daemon-reload
         systemctl restart kubelet
 
