@@ -135,7 +135,7 @@ function install_k8 {
        logError "kubectl taint nodes $(hostname) node-role.kubernetes.io/master:NoSchedule-\n"
         logError "kubectl taint nodes $(hostname) node-role.kubernetes.io/control-plane:NoSchedule-\n"
         
-        logError "kubectl apply -f https://raw.githubusercontent.com/bhagadepravin/kubernetes/main/storage.yaml\n"
+        logError "        logError "curl -sSL https://raw.githubusercontent.com/bhagadepravin/kubernetes/main/storage.yaml | bash n"
 
         if [ $? -ne 0 ]; then
             logError "Error while installing Kubernetes\n"
