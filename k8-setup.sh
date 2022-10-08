@@ -58,6 +58,10 @@ function install_docker {
         fi
     fi
     logSuccess "Docker is Installed\n"
+echo "{ 
+    \"exec-opts\": [\"native.cgroupdriver=systemd\"],
+    \"log-driver\": \"json-file\"
+}" > /etc/docker/daemon.json
 
     systemctl daemon-reload
     systemctl enable docker 2>/dev/null >/dev/null 
