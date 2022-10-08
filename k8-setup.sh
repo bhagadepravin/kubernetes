@@ -41,7 +41,7 @@ EOF
 
 function install_docker {
 
-    if docker --version >/dev/null; then
+    if docker --version 2>/dev/null >/dev/null; then
         logStep "Docker already installed - skipping ...\n"
     else
         logStep "Installing docker ..."
@@ -95,7 +95,7 @@ function install_k8 {
         grep "net.ipv4.ip_forward=1"  /etc/sysctl.conf > /dev/null || sh -c "echo 'net.ipv4.ip_forward=1' >> /etc/sysctl.conf" 2>/dev/null >/dev/null
         sudo sysctl -p /etc/sysctl.conf 2>/dev/null >/dev/null
         sudo sysctl -p /etc/sysctl.conf >/dev/null
-        yum install -y -q kubelet-1.21.14 kubeadm-1.21.14 kubectl-1.21.14 2>/dev/null >/dev/null
+        yum install -y -q kubelet-1.23.12 kubeadm-1.23.12 kubectl-1.23.12 2>/dev/null >/dev/null
         systemctl enable kubelet.service
         systemctl daemon-reload
         systemctl restart kubelet
