@@ -133,7 +133,7 @@ function install_k8 {
         logStep "Remove node-role.kubernetes.io/master:NoSchedule taint, if its a single node cluster and you want deploy pods on control plane as well..\n"
         kubectl taint nodes $(hostname) node-role.kubernetes.io/master:NoSchedule-
         logError "kubectl taint nodes $(hostname) node-role.kubernetes.io/master:NoSchedule-\n"
-        klogError "kubectl taint nodes $(hostname) node-role.kubernetes.io/control-plane:NoSchedule-\n"
+        logError "kubectl taint nodes $(hostname) node-role.kubernetes.io/control-plane:NoSchedule-\n"
 
         if [ $? -ne 0 ]; then
             logError "Error while installing Kubernetes\n"
