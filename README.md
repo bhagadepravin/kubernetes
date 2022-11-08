@@ -17,6 +17,15 @@ curl -s  https://raw.githubusercontent.com/bhagadepravin/kubernetes/k8-1.17.3-0/
 curl -s https://raw.githubusercontent.com/bhagadepravin/kubernetes/main/k8-worker-setup.sh | sh -s
 ```
 
+* **Kubernetes version 1.23.12** 
+```
+curl -sSL https://raw.githubusercontent.com/bhagadepravin/kubernetes/k8-1.23.12/k8-setup.sh  | sh -s
+curl -sSL https://raw.githubusercontent.com/bhagadepravin/kubernetes/main/storage.yaml | sh -s
+yum install wget -y 
+wget https://raw.githubusercontent.com/bhagadepravin/kubernetes/main/ingress.sh
+sed -i 's/pravin-visa-test.acceldata.dev/<hostname>/g' ingress.sh
+```
+
 ### Commands
 ```bash
   mkdir -p $HOME/.kube
