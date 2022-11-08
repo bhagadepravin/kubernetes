@@ -59,6 +59,7 @@ function install_docker {
         fi
     fi
     logSuccess "Docker is Installed\n"
+touch /etc/docker/daemon.json
 echo "{ 
     \"exec-opts\": [\"native.cgroupdriver=systemd\"],
     \"log-driver\": \"json-file\"
