@@ -42,7 +42,7 @@ EOF
 
 function install_docker {
 
-    if docker --version >/dev/null; then
+    if docker --version 2>/dev/null >/dev/null ; then
         logStep "Docker already installed - skipping ...\n"
     else
         logStep "Installing docker ..."
@@ -136,7 +136,7 @@ function install_k8 {
        logError "kubectl taint nodes $(hostname) node-role.kubernetes.io/master:NoSchedule-\n"
         logError "kubectl taint nodes $(hostname) node-role.kubernetes.io/control-plane:NoSchedule-\n"
         
-        logError "        logError "curl -sSL https://raw.githubusercontent.com/bhagadepravin/kubernetes/main/storage.yaml | bash n"
+       logError "curl -sSL https://raw.githubusercontent.com/bhagadepravin/kubernetes/main/storage.yaml | bash n"
 
         if [ $? -ne 0 ]; then
             logError "Error while installing Kubernetes\n"
